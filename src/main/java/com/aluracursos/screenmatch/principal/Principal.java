@@ -2,19 +2,28 @@ package com.aluracursos.screenmatch.principal;
 
 import com.aluracursos.screenmatch.model.DatosSerie;
 import com.aluracursos.screenmatch.model.DatosTemporadas;
+import com.aluracursos.screenmatch.model.Serie;
+import com.aluracursos.screenmatch.repository.SerieRepository;
 import com.aluracursos.screenmatch.service.ConsumoAPI;
 import com.aluracursos.screenmatch.service.ConvierteDatos;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Principal {
-    private Scanner teclado = new Scanner(System.in);
+    private Scanner sc = new Scanner(System.in);
     private ConsumoAPI consumoApi = new ConsumoAPI();
     private final String URL_BASE = "https://www.omdbapi.com/?t=";
     private final String API_KEY = "&apikey=ea5fb936";
     private ConvierteDatos conversor = new ConvierteDatos();
     private List<DatosSerie> datosSeries = new ArrayList<>();
+    private SerieRepository repositorio;
+
+    public Principal(SerieRepository repository) {
+        this.repositorio = repository;
+    }
 
     public void muestraElMenu() {
         var opcion = -1;
@@ -27,8 +36,8 @@ public class Principal {
                     0 - Salir
                     """;
             System.out.println(menu);
-            opcion = teclado.nextInt();
-            teclado.nextLine();
+            opcion = sc.nextInt();
+            sc.nextLine();
 
             switch (opcion) {
                 case 1:
@@ -52,7 +61,7 @@ public class Principal {
 
     private DatosSerie getDatosSerie() {
         System.out.println("Escribe el nombre de la serie que deseas buscar");
-        var nombreSerie = teclado.nextLine();
+        var nombreSerie = sc.nextLine();
         var json = consumoApi.obtenerDatos(URL_BASE + nombreSerie.replace(" ", "+") + API_KEY);
         System.out.println(json);
         DatosSerie datos = conversor.obtenerDatos(json, DatosSerie.class);
@@ -71,12 +80,18 @@ public class Principal {
     }
     private void buscarSerieWeb() {
         DatosSerie datos = getDatosSerie();
-        datosSeries.add(datos);
+        Serie serie = new Serie(datos);
+        repositorio.save(serie);
+        //datosSeries.add(datos);
         System.out.println(datos);
     }
 
     private void mostrarSeriesBuscadas() {
-        datosSeries.forEach(System.out::println);
+        List<Serie> series = repositorio.findAll();
+
+        series.stream()
+                .sorted(Comparator.comparing(Serie::getGenero))
+                .forEach(System.out::println);
     }
 }
 
