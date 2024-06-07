@@ -52,6 +52,10 @@ public class Serie {
                 ", episodios='" + episodios + '\'';
     }
 
+    public List<Episodio> getEpisodios() {
+        return episodios;
+    }
+
     public Long getId() {
         return Id;
     }
