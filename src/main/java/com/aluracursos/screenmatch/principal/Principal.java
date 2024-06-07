@@ -31,6 +31,7 @@ public class Principal {
                     5 - Top 5 mejores series
                     6 - Buscar series por categoria
                     7 - Buscar serie por numero de temporada y evaluacion
+                    8 - Buscar episodio por titulo
                     77 - Buscar serie por temporada y evaluacion (prueba)
                                   
                     0 - Salir
@@ -60,6 +61,9 @@ public class Principal {
                     break;
                 case 7:
                     buscarPorTemporadasYEvaluacion();
+                    break;
+                case 8:
+                    buscarEpisodioPorTitulo();
                     break;
                 case 77:
                     buscarPorTemporadasYEvaluacionDos();
@@ -137,7 +141,8 @@ public class Principal {
     }
     private void buscarTop5Series() {
         List<Serie> topSeries = repositorio.findTop5ByOrderByEvaluacionDesc();
-        topSeries.forEach(s -> System.out.println("Serie: " + s.getTitulo() + " Evaluacion: " + s.getEvaluacion()));
+        topSeries.forEach(s -> System.out.println("Serie: " + s.getTitulo()
+                + " Evaluacion: " + s.getEvaluacion()));
     }
     private void buscarSeriePorCategoria() {
         System.out.println("Escriba el genero/categoria de la serie que desea buscar");
@@ -152,13 +157,30 @@ public class Principal {
         var numeroTemporadas = sc.nextInt();
         System.out.println("Escriba la evaluacion de la serie que desea buscar");
         var evaluacionSerie = sc.nextDouble();
-        List<Serie> seriePorTemparadasYEvaluacion = repositorio.findByTotalTemporadasLessThanEqualAndEvaluacionGreaterThanEqual(numeroTemporadas, evaluacionSerie);
+        List<Serie> seriePorTemparadasYEvaluacion = repositorio
+                .findByTotalTemporadasLessThanEqualAndEvaluacionGreaterThanEqual(numeroTemporadas, evaluacionSerie);
         seriePorTemparadasYEvaluacion.forEach(System.out::println);
     }
 
     private void buscarPorTemporadasYEvaluacionDos(){
-        List<Serie> filtroSerie = repositorio.seriesPorTemporadaYEvaluacion();
-        filtroSerie.forEach(System.out::println);
+        System.out.println("Escriba el numero de temporadas de las serie que desea buscar");
+        var numeroTemporadas = sc.nextInt();
+        System.out.println("Escriba la evaluacion de la serie que desea buscar");
+        var evaluacionSerie = sc.nextDouble();
+        List<Serie> filtroSerie = repositorio.seriesPorTemporadaYEvaluacion(numeroTemporadas, evaluacionSerie);
+        System.out.println("-- Series encontradas --");
+        filtroSerie.forEach(s -> System.out.println("Serie: " + s.getTitulo()
+                + " - " + "Evaluacion: " + s.getEvaluacion()
+                + " - " + "Temporadas: " + s.getTotalTemporadas()));
+    }
+    private void buscarEpisodioPorTitulo() {
+        System.out.println("Escribe el nombre del episodio que deseas buscar");
+        var nombreEpisodio = sc.nextLine();
+        List<Episodio> episodiosEncontrados = repositorio.episodioPorNombre(nombreEpisodio);
+        episodiosEncontrados.forEach(e -> System.out.println("Serie: " + e.getSerie().getTitulo()
+                + " - " + "Temporada: " + e.getTemporada()
+                + " - " + "Episodios: " + e.getNumeroEpisodio()
+                + " - " + "Evaluacion: " + e.getEvaluacion()));
     }
 }
 
